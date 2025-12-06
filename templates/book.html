@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Booking — Lot {{lot_id}} Slot {{slot_number}}</h2>
+{% if error %}<p style="color:#cc0000">{{error}}</p>{% endif %}
+
+<form method="POST">
+  <label>Vehicle number</label>
+  <input name="vehicle" required>
+
+  <label>Start Time</label>
+  <input type="datetime-local" name="start_time" required>
+
+  <label>End Time</label>
+  <input type="datetime-local" name="end_time" required>
+
+  <label>Amount (₹)</label>
+  <input type="number" step="0.01" name="amount" value="{{lot.price}}" required readonly>
+
+  <button type="submit">Proceed to pay</button>
+</form>
+
+<script>
+  const pricePerHour = "{{ lot.price }}";
+  const amountInput = document.querySelector('input[name="amount"]');
+  const startInput = document.querySelector('input[name="start_time"]');
+  const endInput = document.querySelector('input[name="end_time"]');
+
+  function calculateAmount() {
+    const start = new Date(startInput.value);
+    const end = new Date(endInput.value);
+    if (start && end && end > start) {
+      const hours = (end - start) / (1000 * 60 * 60);
+      const total = Math.round(hours * pricePerHour * 100) / 100;
+      amountInput.value = total;
+    }
+  }
+
+  startInput.addEventListener('change', calculateAmount);
+  endInput.addEventListener('change', calculateAmount);
+</script>
+{% endblock %}

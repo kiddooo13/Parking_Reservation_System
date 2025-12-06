@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ lot.name }} — Slots (₹{{ lot.price }} per hour)</h2>
+
+<!-- Slot grid always visible -->
+<div id="grid" class="grid"></div>
+
+<!-- Booking form only for users -->
+{% if session.user and session.user.role == 'user' %}
+<form id="bookingForm" method="POST">
+  <label>Vehicle number</label>
+  <input name="vehicle" placeholder="KA-01-AB-1234" required>
+
+  <label>Start Time</label>
+  <input type="datetime-local" name="start_time" required>
+
+  <label>End Time</label>
+  <input type="datetime-local" name="end_time" required>
+
+  <input type="hidden" name="amount" value="{{ lot.price }}">
+  <button type="submit" disabled id="bookBtn">Book Selected Slot</button>
+</form>
+{% else %}
+<p><a href="/login">Login as a user to book.</a></p>
+{% endif %}
+
+
+<script>
+  const lotId = "{{ lot.id }}";
+  let selectedSlot = null;
+
+  function loadSlots() {
+    fetch(`/api/lot/${lotId}/slots`)
+      .then(res => res.json())
+      .then(data => {
+        const grid = document.getElementById("grid");
+        grid.innerHTML = "";
+
+        if (!Array.isArray(data) || data.length === 0) {
+          grid.innerHTML = "<p>No slots available for this lot.</p>";
+          return;
+        }
+
+        data.forEach(slot => {
+          const div = document.createElement("div");
+          div.className = "slot " + slot.status;
+          div.textContent = slot.slot_number;
+
+          if (slot.status === "available") {
+            div.onclick = () => selectSlot(slot.slot_number, div);
+          }
+
+          grid.appendChild(div);
+        });
+
+        if (selectedSlot) {
+          document.querySelectorAll(".slot").forEach(s => {
+            if (s.textContent == selectedSlot) s.classList.add("selected");
+          });
+        }
+      })
+      .catch(err => {
+        console.error("Error loading slots:", err);
+        document.getElementById("grid").innerHTML = "<p>Error loading slots.</p>";
+      });
+  }
+
+  function selectSlot(slotNumber, element) {
+    selectedSlot = slotNumber;
+    document.querySelectorAll(".slot").forEach(s => s.classList.remove("selected"));
+    element.classList.add("selected");
+
+    const form = document.getElementById("bookingForm");
+    if (form) {
+      form.action = `/book/${lotId}/${slotNumber}`;
+      document.getElementById("bookBtn").disabled = false;
+    }
+  }
+
+  // Booking logic only runs if form exists
+  const form = document.getElementById("bookingForm");
+  if (form) {
+    const pricePerHour = parseFloat("{{ lot.price }}");
+    const amountInput = document.querySelector('input[name="amount"]');
+    const startInput = document.querySelector('input[name="start_time"]');
+    const endInput = document.querySelector('input[name="end_time"]');
+
+    function calculateAmount() {
+      const start = new Date(startInput.value);
+      const end = new Date(endInput.value);
+      if (start && end && end > start) {
+        const hours = (end - start) / (1000 * 60 * 60);
+        const total = Math.round(hours * pricePerHour * 100) / 100;
+        amountInput.value = total;
+      } else {
+        amountInput.value = pricePerHour;
+      }
+    }
+
+    startInput.addEventListener('change', calculateAmount);
+    endInput.addEventListener('change', calculateAmount);
+  }
+
+  loadSlots();
+  setInterval(loadSlots, 5000);
+</script>
+{% endblock %}

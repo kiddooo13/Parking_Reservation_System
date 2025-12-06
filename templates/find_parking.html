@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Nearby Parking Lots</h2>
+
+
+<div id="map" style="height:500px; width:100%; border:2px solid #0096C7;"></div>
+<div id="lot-cards" style="margin-top:20px; display:flex; flex-wrap:wrap; gap:20px;"></div>
+
+<script>
+  const lots = {{ lots|tojson }};
+  let userLocation = null;
+  let map = null;
+
+  function initMap() {
+    const fallbackCenter = { lat: 15.157144, lng: 76.891815 }; // Ballari fallback
+    userLocation = fallbackCenter;
+    renderMap(fallbackCenter);
+    renderCards(fallbackCenter);
+  }
+
+  function useMyLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function(position) {
+          userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          console.log("User location:", userLocation);
+          renderMap(userLocation);
+          renderCards(userLocation);
+        },
+        function(error) {
+          alert("Unable to access location. Using default location.");
+          console.warn("Geolocation failed:", error.message);
+          renderMap(userLocation);
+          renderCards(userLocation);
+        },
+        { timeout: 10000 }
+      );
+    } else {
+      alert("Geolocation not supported. Using default location.");
+      renderMap(userLocation);
+      renderCards(userLocation);
+    }
+  }
+
+  function renderMap(center) {
+    if (!map) {
+      map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 14,
+        center: center
+      });
+    } else {
+      map.setCenter(center);
+    }
+
+    new google.maps.Marker({
+      position: center,
+      map: map,
+      title: "You are here",
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 6,
+        fillColor: "#0096C7",
+        fillOpacity: 1,
+        strokeWeight: 1
+      }
+    });
+
+    lots.forEach(l => {
+      if (l.latitude && l.longitude) {
+        const pos = { lat: parseFloat(l.latitude), lng: parseFloat(l.longitude) };
+        const marker = new google.maps.Marker({
+          position: pos,
+          map: map,
+          title: `${l.name} - ₹${l.price}`
+        });
+        const info = new google.maps.InfoWindow({
+          content: `<b>${l.name}</b><br/>₹${l.price}<br/><a href="/lot/${l.id}">View slots</a>`
+        });
+        marker.addListener('click', () => info.open(map, marker));
+      }
+    });
+  }
+
+  function renderCards(center) {
+    const container = document.getElementById("lot-cards");
+    container.innerHTML = "";
+
+    lots.forEach(l => {
+      if (l.latitude && l.longitude) {
+        const dist = calculateDistance(center.lat, center.lng, parseFloat(l.latitude), parseFloat(l.longitude));
+        const card = document.createElement("div");
+        card.style = "border:1px solid #ccc; padding:15px; width:300px; box-shadow:2px 2px 8px rgba(0,0,0,0.1);";
+
+        card.innerHTML = `
+          <h3>${l.name}</h3>
+          <p><strong>Price:</strong> ₹${l.price}</p>
+          <p><strong>Distance:</strong> ${dist.toFixed(2)} km</p>
+          <a href="/lot/${l.id}" class="btn" style="background:#0096C7; color:white; padding:8px 12px; text-decoration:none;">View Slots</a>
+        `;
+        container.appendChild(card);
+      }
+    });
+  }
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+  }
+
+  window.onload = initMap;
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{google_api}}" async defer></script>
+{% endblock %}

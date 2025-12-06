@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+<!-- Hero Section -->
+<div style="background:#0096C7; color:white; padding:60px 20px; text-align:center;">
+  <div style="text-align:center; margin-top:40px;">
+  <img src="/static/images/parking_illustration.png" alt="Smart parking illustration"
+       style="max-width:100%; height:auto; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+</div>
+  <h1 style="font-size:2.5em; margin-bottom:10px;">Find Your Perfect Parking Spot</h1>
+  <p style="font-size:1.2em; max-width:600px; margin:0 auto;">
+    Reserve parking slots in advance with real-time availability. Save time, save money, and park with confidence.
+  </p>
+  <a href="/user/find_parking" class="cta-button" style="margin-top:30px;">Start Parking Smarter</a>
+</div>
+
+<!-- Feature Highlights -->
+<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:30px; padding:40px 20px; background:#f9f9f9;">
+  <div class="feature-box">
+    <h3>🚗 Real-Time Availability</h3>
+    <p>Check live parking slot availability before you arrive.</p>
+  </div>
+  <div class="feature-box">
+    <h3>🔒 Secure Booking</h3>
+    <p>Safe and secure payment processing with instant confirmation.</p>
+  </div>
+  <div class="feature-box">
+    <h3>📞 24/7 Support</h3>
+    <p>Round-the-clock assistance for all your parking needs.</p>
+  </div>
+</div>
+
+<!-- CTA Section -->
+<div style="text-align:center; padding:40px 20px;">
+  <h2>Ready to book your spot?</h2>
+  <a href="/user/find_parking" class="cta-button">Find Parking Near You</a>
+</div>
+
+<!-- Styles and Animations -->
+<style>
+  .cta-button {
+    display: inline-block;
+    background: white;
+    color: #0096C7;
+    padding: 12px 24px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .cta-button:hover {
+    background: #0055aa;
+    color: white;
+    transform: scale(1.05);
+  }
+  .feature-box {
+    flex: 1;
+    min-width: 250px;
+    max-width: 300px;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+  }
+  .feature-box:hover {
+    transform: translateY(-5px);
+  }
+</style>
+
+{% endblock %}

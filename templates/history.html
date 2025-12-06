@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Your Booking History</h2>
+<table>
+  <tr>
+    <th>ID</th>
+    <th>Lot Name</th>
+    <th>Slot</th>
+    <th>Start Time</th>
+    <th>End Time</th>
+    <th>Status</th>
+    <th>Amount</th>
+    <th>Action</th>
+  </tr>
+  {% for b in bookings %}
+  <tr>
+    <td>{{ b.id }}</td>
+    <td>{{ b.lot_name }}</td>
+    <td>{{ b.slot_number }}</td>
+    <td>{{ b.start_time.strftime('%Y-%m-%d %H:%M') if b.start_time }}</td>
+    <td>{{ b.end_time.strftime('%Y-%m-%d %H:%M') if b.end_time }}</td>
+    <td>{{ b.status }}</td>
+    <td>₹{{ b.amount }}</td>
+    <td>
+      {% if b.status == 'reserved' %}
+      <form method="POST" action="/cancel/{{ b.id }}">
+        <button type="submit" class="btn" style="background:#cc0000">Cancel</button>
+      </form>
+      {% else %}-{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

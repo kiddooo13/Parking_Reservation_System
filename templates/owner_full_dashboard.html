@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Unified Analytics Dashboard for Admin {{owner_id}}</h2>
+
+<h3>Occupancy and Revenue</h3>
+<table>
+  <tr>
+    <th>Lot Name</th>
+    <th>Total Slots</th>
+    <th>Occupied</th>
+    <th>Reserved</th>
+    <th>Available</th>
+    <th>Occupancy Rate (%)</th>
+    <th>Revenue (₹)</th>
+  </tr>
+  {% for lot in occupancy_data %}
+  <tr>
+    <td>{{ lot.lot_name }}</td>
+    <td>{{ lot.total_slots }}</td>
+    <td>{{ lot.occupied }}</td>
+    <td>{{ lot.reserved }}</td>
+    <td>{{ lot.available }}</td>
+    <td>{{ lot.occupancy_rate }}</td>
+    <td>{{ lot.revenue }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div class="chart"><canvas id="occupancyChart"></canvas></div>
+<div class="chart"><canvas id="revenueChart"></canvas></div>
+
+<h3>Commission breakdown</h3>
+<table>
+  <tr><th>Total Revenue</th><td>₹{{total_revenue}}</td></tr>
+  <tr><th>Platform Commission (10%)</th><td>₹{{commission}}</td></tr>
+  <tr><th>Net Revenue</th><td>₹{{net_revenue}}</td></tr>
+</table>
+<div class="chart"><canvas id="commissionChart"></canvas></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  new Chart(document.getElementById('occupancyChart'), {
+    type: 'bar',
+    data: {
+      labels: [{% for lot in occupancy_data %}'{{lot.lot_name}}',{% endfor %}],
+      datasets: [{ label: 'Occupancy Rate (%)', data: [{% for lot in occupancy_data %}{{lot.ocupancy_rate if lot.ocupancy_rate else lot.occupancy_rate}},{% endfor %}], backgroundColor: '#0096C7' }]
+    },
+    options: { scales: { y: { beginAtZero: true, max: 100 } } }
+  });
+
+  new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+      labels: [{% for row in trend %}'{{row.day}}',{% endfor %}],
+      datasets: [{ label: 'Daily Revenue (₹)', data: [{% for row in trend %}{{row.total}},{% endfor %}], borderColor: '#0096C7', backgroundColor: '#66a3ff', fill: true, tension: 0.3 }]
+    }
+  });
+
+  new Chart(document.getElementById('commissionChart'), {
+    type: 'pie',
+    data: { labels: ['Platform Commission', 'Net Revenue'], datasets: [{ data: [{{commission}}, {{net_revenue}}], backgroundColor: ['#ffcc00', '#0096C7'] }] },
+    options: { plugins: { legend: { position: 'bottom' } } }
+  });
+</script>
+{% endblock %}

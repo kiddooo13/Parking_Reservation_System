@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Commission Breakdown for Admin {{owner_id}}</h2>
+<table>
+  <tr><th>Total Revenue</th><td>₹{{total_revenue}}</td></tr>
+  <tr><th>Platform Commission (10%)</th><td>₹{{commission}}</td></tr>
+  <tr><th>Net Revenue</th><td>₹{{net_revenue}}</td></tr>
+</table>
+<div class="chart"><canvas id

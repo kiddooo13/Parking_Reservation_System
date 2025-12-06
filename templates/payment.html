@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment — Parking Marketplace</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+    <h2>Pay for {{lot.name}} — Slot {{slot_number}}</h2>
+    <p>Amount: ₹{{amount}}</p>
+    <p>Redirecting to Razorpay Checkout…</p>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  var options = {
+    "key": "{{ payment['key'] }}",
+    "amount": "{{ payment['amount'] }}",
+    "currency": "INR",
+    "name": "Parking Marketplace",
+    "description": "Slot Booking",
+    "order_id": "{{ payment['id'] }}",
+    "handler": function (response){
+        fetch("/payment/confirm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                payment_id: response.razorpay_payment_id,
+                order_id: response.razorpay_order_id,
+                signature: response.razorpay_signature
+            })
+        }).then(() => window.location.href = "/history");
+    },
+    "prefill": {
+        "name": "{{ session.user.name }}",
+        "email": "{{ session.user.email }}"
+    },
+    "theme": { "color": "#0096C7" }
+  };
+  var rzp = new Razorpay(options);
+  rzp.open();
+</script>
+</body>
+</html>

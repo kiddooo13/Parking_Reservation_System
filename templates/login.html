@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Login</h2>
+
+{% if error %}
+<p style="color:#cc0000">{{ error }}</p>
+{% endif %}
+
+<form method="POST" id="loginForm">
+  <label>Email</label>
+  <input type="email" name="email" id="emailInput" required value="{{ email if email else '' }}">
+  <button type="button" onclick="checkEmail()">Next</button>
+
+  <p id="emailError" style="color:#cc0000; display:none;">Invalid email</p>
+
+  <div id="passwordSection" style="display:none; margin-top: 20px;">
+    <label>Password</label>
+    <input type="password" name="password" required>
+    <button type="submit">Login</button>
+  </div>
+</form>
+
+<h3>NEW USER? <a href="/register">Register Now</a></h3>
+
+<script>
+function checkEmail() {
+  const email = document.getElementById("emailInput").value;
+  fetch("/check_email", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "email=" + encodeURIComponent(email)
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.exists) {
+      document.getElementById("emailError").style.display = "none";
+      document.getElementById("passwordSection").style.display = "block";
+    } else {
+      document.getElementById("emailError").style.display = "block";
+      document.getElementById("passwordSection").style.display = "none";
+    }
+  });
+}
+</script>
+{% endblock %}
