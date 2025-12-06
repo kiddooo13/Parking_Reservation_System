@@ -1,7 +1,8 @@
 Flask==3.0.0
 mysql-connector-python==8.4.0
 gunicorn
-pip install --upgrade setuptools
+setuptools
 razorpay==1.4.2
 mysql-connector-python
+
 
