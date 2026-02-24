@@ -7,9 +7,9 @@ app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
 # Keys provided by user
-GOOGLE_MAPS_API_KEY = "AIzaSyBVafGfqH07QBe-IdonWLcswh3_nWUfPAI"
-RAZORPAY_KEY_ID = "rzp_test_RgSuAsncLNVsRI"
-RAZORPAY_KEY_SECRET = "CGhSm8TiXZmSQG2ytE3fQweq"
+GOOGLE_MAPS_API_KEY = ""
+RAZORPAY_KEY_ID = ""
+RAZORPAY_KEY_SECRET = ""
 
 # Razorpay client
 razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
@@ -572,4 +572,5 @@ def cancel_booking(booking_id):
 
 # ------------------ MAIN ------------------
 if __name__ == "__main__":
+
     app.run(debug=True)
